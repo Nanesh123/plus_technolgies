@@ -65,8 +65,6 @@ class _AddScreenState extends State<AddScreen> {
           const SizedBox(height: 10),
           Container(
             height: height * 0.25,
-            // color: Colors.yellow,
-            // padding: const EdgeInsets.only(top: 10),
             alignment: Alignment.bottomCenter,
             child: Image.asset('assets/7566-removebg-preview.png'),
           ),
@@ -103,6 +101,7 @@ class _AddScreenState extends State<AddScreen> {
                 const Divider(),
                 SizedBox(
                   width: width * 0.50,
+                  height: 45,
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -111,20 +110,25 @@ class _AddScreenState extends State<AddScreen> {
                       onPressed: () async {
                         if (formKey.currentState!.validate()) {
                           try {
-                            final result = await _clientProvider.addClient(
+                            final result = await _clientProvider.addToLocal(
                                 nameController.text.toString(),
                                 phoneController.text.toString(),
                                 addressController.text.toString());
-
-                            Toast.show(result.toString(),
-                                duration: Toast.lengthLong,
-                                gravity: Toast.bottom);
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ClientScreen(),
-                                ),
-                                (route) => false);
+                            if (result) {
+                              Toast.show('Client created!',
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom);
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ClientScreen(),
+                                  ),
+                                  (route) => false);
+                            } else {
+                              Toast.show('Name exist',
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom);
+                            }
                           } catch (e) {
                             Toast.show('Something went wrong!',
                                 duration: Toast.lengthLong,
@@ -132,11 +136,13 @@ class _AddScreenState extends State<AddScreen> {
                           }
                         }
                       },
-                      child: _clientProvider.isSubmit
+                      child: Provider.of<ClientProvider>(context).isSubmit
                           ? const Padding(
                               padding: EdgeInsets.all(5.0),
                               child: Center(
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
                               ),
                             )
                           : const Text(

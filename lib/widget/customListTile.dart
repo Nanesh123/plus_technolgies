@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:plus_technolgies/model/clientList.dart';
+import 'package:plus_technolgies/provider/client_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:toast/toast.dart';
 
 class CustomListTile extends StatelessWidget {
   const CustomListTile({super.key, required this.client});
@@ -7,6 +10,7 @@ class CustomListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Container(
       height: 56,
       margin: const EdgeInsets.all(5.0),
@@ -39,6 +43,7 @@ class CustomListTile extends StatelessWidget {
               children: [
                 Text(
                   client.name.toString(),
+                  maxLines: 1,
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
@@ -66,62 +71,54 @@ class CustomListTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 7.0),
-          buildActionButton(),
+          Expanded(
+            child: buildActionButton(context, client),
+          ),
           const SizedBox(width: 5.0),
         ],
       ),
-
-      //  ListTile(
-      //   visualDensity: const VisualDensity(vertical: 0),
-      //   leading: Container(
-      //     height: 45,
-      //     width: 45,
-      //     color: Colors.grey.shade300,
-      //     child: const Icon(Icons.person, color: Colors.grey, size: 22),
-      //   ),
-      //   title: const Text(
-      //     'Client',
-      //     style: TextStyle(
-      //       color: Colors.black,
-      //       fontSize: 16,
-      //     ),
-      //   ),
-      //   subtitle: Row(
-      //     children: const [
-      //       Icon(
-      //         Icons.location_on,
-      //         color: Colors.orange,
-      //         size: 12,
-      //       ),
-      //       Expanded(
-      //         child: Text(
-      //           'ABC,Safadfgssfsgfs',
-      //           maxLines: 1,
-      //           style: TextStyle(
-      //             color: Colors.grey,
-      //             fontSize: 14,
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      //   trailing: buildActionButton(),
-      // ),
     );
   }
 
-  buildActionButton() {
-    return SizedBox(
-      width: 55,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: const [
-          Icon(Icons.delete, color: Colors.red, size: 20),
-          SizedBox(width: 7.0),
-          Icon(Icons.edit, color: Colors.grey, size: 20),
-        ],
-      ),
+  buildActionButton(context, item) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        const Icon(Icons.delete, color: Colors.red, size: 20),
+        const SizedBox(width: 7.0),
+        const Icon(Icons.edit, color: Colors.grey, size: 20),
+        const SizedBox(width: 7.0),
+        if (item.id == null)
+          InkWell(
+              onTap: () async {
+                final result =
+                    await Provider.of<ClientProvider>(context, listen: false)
+                        .addClient(
+                            item.name, item.phone, item.address, item.ownerId);
+
+                // Toast.show('$result',
+                //     duration: Toast.lengthLong, gravity: Toast.bottom);
+              },
+              child: const Icon(Icons.sync, color: Colors.grey, size: 20)),
+      ],
     );
+  }
+}
+
+class CustomListTileInheritedWdget extends InheritedWidget {
+  final int index;
+  final int length;
+
+  const CustomListTileInheritedWdget({
+    Key? key,
+    required this.index,
+    required this.length,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  @override
+  bool updateShouldNotify(CustomListTileInheritedWdget oldWidget) {
+    return oldWidget.index != index || oldWidget.index != index;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:plus_technolgies/provider/client_provider.dart';
 import 'package:plus_technolgies/screen/add_client_screen.dart';
@@ -28,7 +30,17 @@ class ClientScreen extends StatelessWidget {
           _actionButton(context),
         ],
       ),
-      body: ClientScreenBody(),
+      body: const ClientScreenBody(),
+      floatingActionButton: Consumer<ClientProvider>(
+        builder: (context, value, child) => FloatingActionButton(
+          onPressed: () {
+            value.startSync();
+          },
+          child: value.isCompleteSync
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.sync, color: Colors.white, size: 20),
+        ),
+      ),
     );
   }
 
@@ -62,12 +74,19 @@ class ClientScreenBody extends StatefulWidget {
 }
 
 class _ClientScreenBodyState extends State<ClientScreenBody> {
+  late ClientProvider _clientProvider;
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<ClientProvider>(context, listen: false).getCient();
-    });
+    _clientProvider = Provider.of<ClientProvider>(context, listen: false);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _clientProvider.getCient();
+    });
+    super.didChangeDependencies();
   }
 
   @override
@@ -81,11 +100,18 @@ class _ClientScreenBodyState extends State<ClientScreenBody> {
             child: CircularProgressIndicator(),
           );
         }
-        return ListView.builder(
-          itemCount: clientList.length,
-          itemBuilder: (context, index) {
-            return CustomListTile(client: clientList[index]);
-          },
+        return RefreshIndicator(
+          onRefresh: () async => await _clientProvider.getCient(),
+          child: ListView.builder(
+            itemCount: clientList.length,
+            itemBuilder: (context, index) {
+              return CustomListTileInheritedWdget(
+                index: index,
+                length: clientList.length,
+                child: CustomListTile(client: clientList[index]),
+              );
+            },
+          ),
         );
       },
     );
