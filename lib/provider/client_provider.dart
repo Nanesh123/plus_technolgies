@@ -46,7 +46,7 @@ class ClientProvider extends ChangeNotifier {
     try {
       var apiRespose = await ApiService().postData(data);
       isSubmit = false;
-      await updateLocal(name);
+      await updateLocal(phone);
       return apiRespose['message'];
     } catch (e) {
       isSubmit = false;
@@ -105,8 +105,9 @@ class ClientProvider extends ChangeNotifier {
     try {
       final clientBox = await openClientBox();
 
-      final localClientData =
-          clientBox.values.where((element) => (element.name == name)).toList();
+      final localClientData = clientBox.values
+          .where((element) => (element.phone == phone))
+          .toList();
       isSubmit = false;
       if (localClientData.isEmpty) {
         final clientData = ClientModel(
@@ -128,10 +129,10 @@ class ClientProvider extends ChangeNotifier {
     }
   }
 
-  updateLocal(name) async {
+  updateLocal(phone) async {
     final clientBox = await openClientBox();
     final localClientData =
-        clientBox.values.where((element) => (element.name == name)).toList();
+        clientBox.values.where((element) => (element.phone == phone)).toList();
     if (localClientData.isNotEmpty) {
       final key = localClientData.first.key;
 

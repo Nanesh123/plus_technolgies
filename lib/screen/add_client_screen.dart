@@ -125,7 +125,7 @@ class _AddScreenState extends State<AddScreen> {
                                   ),
                                   (route) => false);
                             } else {
-                              Toast.show('Name exist',
+                              Toast.show('Phone number exist',
                                   duration: Toast.lengthLong,
                                   gravity: Toast.bottom);
                             }
